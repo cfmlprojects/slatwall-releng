@@ -1,0 +1,4 @@
+build/temp
+build/requires.txt
+dist/
+src/

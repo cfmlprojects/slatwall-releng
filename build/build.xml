@@ -1,0 +1,95 @@
+<project name="distro.build" default="build" basedir="./" xmlns:antcontrib="antlib:net.sf.antcontrib">
+
+	<loadproperties srcfile="build.properties"/>
+	<property name="mxunit.tests.dir" location="${src.dir}/plugins/slatwall/meta/tests/unit" />
+	<property name="mxunit.runner" value="/plugins/slatwall/meta/tests/HttpAntRunner.cfc" />
+	<property name="mxunit.componentpath" value="plugins.slatwall.meta.tests.unit" />
+	<property name="mxunit.tests.results.dir" location="${dist.dir}/testresults" />
+	<property name="mxunit.recurse" value="true" />
+	<property name="mxunit.packageName" value="${mxunit.componentpath}" />
+	<import file="${cfdistro.build.file}"/>
+
+	<target name="build" depends="cfdistro.build">
+		<dependency groupId="org.mxunit" artifactId="core" version="${mxunit.version}" mapping="/mxunit" />
+		<dependency groupId="org.getmura" artifactId="mura" version="6.0" dest="${src.dir}" unzip="true" mapping="/" />
+		<mapping physical="@src.dir@" virtual="/"/>
+		<mapping physical="@src.dir@/../tests" virtual="/tests"/>
+		<!-- <mapping physical="@src.dir@/plugins/slatwall" virtual="/Slatwall"/> -->
+		<mapping physical="@war.target.dir@/WEB-INF/lib/railo-server" virtual="/WEB-INF/lib/railo-server"/>
+		<antcontrib:runtarget target="mura.initdb" />
+	</target>
+
+	<target name="build.test" depends="build">
+		<server-run>
+			<get src="http://${server.host}:${server.port.http}/index.cfm" dest="${temp.dir}/firedUpMuraNowDelMe" />
+			<get src="http://${server.host}:${server.port.http}/plugins/slatwall/index.cfm" dest="${temp.dir}/firedUpMuraNowDelMe" />
+			<delete file="${temp.dir}/firedUpMuraNowDelMe" />
+			<antcontrib:runtarget target="mxunit.tests" />
+		</server-run>
+	</target>
+
+	<target name="slatwall.getversion">
+		<loadfile srcFile="${src.dir}/plugins/slatwall/version.txt" property="slatwall.version"/>
+	</target>
+
+	<target name="build.mvn.deploy" depends="project.update,slatwall.getversion">
+	    <property name="mvn.repo.dest" value="local" />
+	    <property name="mvn.repo.dest" value="remote" />
+	    <property name="mvn.repo.id" value="mvn.repo.${mvn.repo.dest}" />
+	    <property name="maven.repo.local" location="${cfdistro.basedir}/artifacts" />
+		<mvn-repo id="mvn.repo.local" url="file://${maven.repo.local}/" />
+	   	<property name="mvn.type" value="release" />
+		<zip destfile="${dist.dir}/slatwall.zip" update="false">
+	        <fileset dir="${src.dir}/plugins/slatwall" excludes="config/settings.ini.cfm" />
+		</zip>
+		<zip destfile="${dist.dir}/cfselenium.zip" update="false">
+	        <fileset dir="${src.dir}/cfselenium" />
+		</zip>
+		<pom-and-deploy pomid="slatwall.pom" packaging="zip" artifact="${dist.dir}/slatwall.zip"
+		 groupId="com.getslatwall" artifactId="slatwall" version="${slatwall.version}" name="slatwall"/>
+		<pom-and-deploy pomid="cfselenium.pom" packaging="zip" artifact="${dist.dir}/cfselenium.zip"
+		 groupId="cfml.cfselenium" artifactId="cfselenium" version="${slatwall.version}" name="cfselenium"/>
+
+		<zip destfile="${dist.dir}/coldspring.zip" update="false">
+	        <fileset dir="${src.dir}/coldspring" />
+		</zip>
+		<pom-and-deploy pomid="coldspring.pom" packaging="zip" artifact="${dist.dir}/coldspring.zip"
+		 groupId="org.coldspringframework" artifactId="coldspring-all" version="1.2" name="coldspring"/>
+		 <delete file="${dist.dir}/coldspring.zip"/>
+		<zip destfile="${dist.dir}/coldspring.zip" update="false">
+	        <fileset dir="${src.dir}/coldspring" excludes="tests/**,unitTests/**,examples/**,docs/**,cfcunit/**,aop/framework/tmp/"/>
+		</zip>
+		<pom-and-deploy pomid="coldspring.pom" packaging="zip" artifact="${dist.dir}/coldspring.zip"
+		 groupId="org.coldspringframework" artifactId="coldspring" version="1.2" name="coldspring"/>
+	</target>
+
+	<target name="mura.initdb" depends="exists.datasources.xml">
+		<sql
+			driver="${dsn.mura.class}"
+			url="${dsn.mura.url}"
+		    userid="${dsn.mura.username}"
+		    password="${dsn.mura.password}">
+			DROP DATABASE MURA;
+			CREATE DATABASE MURA;
+			<classpath>
+				<path refid="data.lib.path"/>
+			</classpath>
+		</sql>
+		<delete file="${src.dir}/config/settings.ini.cfm" />
+		<server-run>
+			<antcontrib:post to="http://${server.host}:${server.port.http}/index.cfm" verbose="false" property="mura.setupSubmitButton" failonerror="true"/>
+			<delete file="${src.dir}/config/settings.ini.cfm" />
+			<antcontrib:propertyregex override="yes" property="mura.setupSubmitButton" input="${mura.setupSubmitButton}" 
+				regexp=".*?type=&quot;submit&quot;\sname=&quot;([^&quot;]+).*?" select="\1" />
+			<echo message="${mura.setupSubmitButton}" />
+			<antcontrib:post to="http://${server.host}:${server.port.http}/index.cfm" verbose="false" file="setup.post.txt" failonerror="true">
+				<prop name="${mura.setupSubmitButton}" value="Save Settings"/>
+	    	</antcontrib:post>
+		</server-run>
+		<antcontrib:inifile source="${src.dir}/config/settings.ini.cfm" dest="${src.dir}/config/settings.ini.cfm">
+		   <set section="production" property="autodiscoverplugins" value="true" />
+		   <set section="production" property="trackSessionInNewThread" value="0" />
+		</antcontrib:inifile>
+	</target>
+	
+</project>

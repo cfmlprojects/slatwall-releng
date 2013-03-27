@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<src>
+	<project>
+		<src dest="@src.dir@/plugins/slatwall" type="git" 
+		uri="https://github.com/ten24/Slatwall.git" 
+		user="" password="" />
+		<src dest="@src.dir@/cfselenium" type="git" 
+		uri="https://github.com/bobsilverberg/CFSelenium.git" 
+		user="" password="" />
+	</project>
+	<sources>
+<!--	ColdSpring 2.0
+		<src dest="@src.dir@/coldspring" type="git" 
+		uri="git://coldspring.git.sourceforge.net/gitroot/coldspring/coldspring" 
+		user="" password="" />
+ -->
+	</sources>
+</src>
