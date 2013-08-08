@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <src>
 	<project>
-		<src dest="@src.dir@/plugins/slatwall" type="git" 
+		<src dest="@src.dir@/Slatwall" type="git" 
 		uri="https://github.com/ten24/Slatwall.git" 
-		user="" password="" />
+		remote="origin" branch="master" user="" password="" />
 		<src dest="@src.dir@/cfselenium" type="git" 
 		uri="https://github.com/bobsilverberg/CFSelenium.git" 
 		user="" password="" />
