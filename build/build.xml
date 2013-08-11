@@ -9,22 +9,13 @@
 	<property name="mxunit.packageName" value="${mxunit.componentpath}" />
 	<import file="${cfdistro.build.file}"/>
 
-	<target name="build" depends="cfdistro.build">
+	<target name="build" depends="cfdistro.build, slatwall.initdb">
 		<dependency groupId="org.mxunit" artifactId="core" version="${mxunit.version}" mapping="/mxunit" />
 		<echo file="${src.dir}/Slatwall/HttpAntRunner.cfc"><![CDATA[<cfcomponent extends="mxunit.runner.HttpAntRunner"></cfcomponent>]]></echo>
 		<mapping physical="@src.dir@/../tests" virtual="/tests" />
 	</target>
 
-	<target name="build.slatwall.mura" depends="build">
-		<dependency groupId="org.getmura" artifactId="mura" version="6.0" dest="${src.dir}" unzip="true" mapping="/" />
-		<mapping physical="@src.dir@" virtual="/"/>
-		<mapping physical="@war.target.dir@/WEB-INF/lib/railo-server" virtual="/WEB-INF/lib/railo-server"/>
-		<mapping physical="@src.dir@/../tests" virtual="/tests" />
-		<antcontrib:runtarget target="mura.initdb" />
-		<!-- <mapping physical="@src.dir@/plugins/slatwall" virtual="/Slatwall"/> -->
-	</target>
-
-	<target name="build.test" depends="">
+	<target name="build.test" depends="build">
 		<server-run>
 <!--
  			<get src="http://${server.host}:${server.port.http}/plugins/slatwall/index.cfm" dest="${temp.dir}/firedUpMuraNowDelMe" />
@@ -41,50 +32,37 @@
 	</target>
 
 	<target name="slatwall.getversion">
-		<loadfile srcFile="${src.dir}/plugins/slatwall/version.txt" property="slatwall.version"/>
+		<loadfile srcFile="${src.dir}/Slatwall/version.txt" property="slatwall.version"/>
 	</target>
 
-	<target name="build.mvn.deploy" depends="project.update,slatwall.getversion">
+	<target name="build.mvn.deploy" depends="project.update, slatwall.getversion, build.test">
 	    <property name="mvn.repo.dest" value="local" />
 	    <property name="mvn.repo.dest" value="remote" />
 	    <property name="mvn.repo.id" value="mvn.repo.${mvn.repo.dest}" />
 	    <property name="maven.repo.local" location="${cfdistro.basedir}/artifacts" />
 		<mvn-repo id="mvn.repo.local" url="file://${maven.repo.local}/" />
 	   	<property name="mvn.type" value="release" />
+	   	<delete file="${dist.dir}/slatwall.zip" />
+		<defaultexcludes remove="**/.gitignore"/>
 		<zip destfile="${dist.dir}/slatwall.zip" update="false">
-	        <fileset dir="${src.dir}/plugins/slatwall" excludes="config/settings.ini.cfm" />
+	        <fileset dir="${src.dir}/Slatwall" excludes="config/settings.ini.cfm, config/lastFullUpdate.txt.cfm" />
 		</zip>
 		<pom-and-deploy pomid="slatwall.pom" packaging="zip" artifact="${dist.dir}/slatwall.zip"
 		 groupId="com.getslatwall" artifactId="slatwall" version="${slatwall.version}" name="slatwall"/>
 	</target>
 
-	<target name="mura.initdb" depends="exists.datasources.xml">
+	<target name="slatwall.initdb" depends="exists.datasources.xml">
 		<sql
-			driver="${dsn.mura.class}"
-			url="${dsn.mura.url}"
-		    userid="${dsn.mura.username}"
-		    password="${dsn.mura.password}">
-			DROP DATABASE MURA;
-			CREATE DATABASE MURA;
+			driver="${dsn.slatwall.class}"
+			url="${dsn.slatwall.url}"
+		    userid="${dsn.slatwall.username}"
+		    password="${dsn.slatwall.password}">
+			DROP DATABASE slatwall;
+			CREATE DATABASE slatwall;
 			<classpath>
 				<path refid="data.lib.path"/>
 			</classpath>
 		</sql>
-		<delete file="${src.dir}/config/settings.ini.cfm" />
-		<server-run>
-			<antcontrib:post to="http://${server.host}:${server.port.http}/index.cfm" verbose="false" property="mura.setupSubmitButton" failonerror="true"/>
-			<delete file="${src.dir}/config/settings.ini.cfm" />
-			<antcontrib:propertyregex override="yes" property="mura.setupSubmitButton" input="${mura.setupSubmitButton}" 
-				regexp=".*?type=&quot;submit&quot;\sname=&quot;([^&quot;]+).*?" select="\1" />
-			<echo message="${mura.setupSubmitButton}" />
-			<antcontrib:post to="http://${server.host}:${server.port.http}/index.cfm" verbose="false" file="setup.post.txt" failonerror="true">
-				<prop name="${mura.setupSubmitButton}" value="Save Settings"/>
-	    	</antcontrib:post>
-		</server-run>
-		<antcontrib:inifile source="${src.dir}/config/settings.ini.cfm" dest="${src.dir}/config/settings.ini.cfm">
-		   <set section="production" property="autodiscoverplugins" value="true" />
-		   <set section="production" property="trackSessionInNewThread" value="0" />
-		</antcontrib:inifile>
 	</target>
 	
 </project>

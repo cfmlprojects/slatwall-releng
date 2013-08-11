@@ -4,12 +4,12 @@
 		name="Slatwall" 
 		host="127.0.0.1" 
 		port="3306" 
-		database="@dsn.mura.database@"
-		username="@dsn.mura.username@" 
-		password="@dsn.mura.password@" 
+		database="@dsn.slatwall.database@"
+		username="@dsn.slatwall.username@" 
+		password="@dsn.slatwall.password@" 
 		jdbc="mysql"
-		class="org.gjt.mm.mysql.Driver"
-		jdbcstring="jdbc:mysql://127.0.0.1:3306/mura"
+		class="@dsn.slatwall.class@"
+		jdbcstring="@dsn.slatwall.url@"
 		 />
 
 </datasources>
