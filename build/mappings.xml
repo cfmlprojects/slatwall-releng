@@ -5,8 +5,8 @@
   <mapping physical="@src.dir@/slatwall-releng" virtual="/slatwall-releng"/>
  -->
 <mapping physical="@ext.mappings.dir@/org.mxunit/core/2.1.3/mxunit" virtual="/mxunit"/>
-<mapping physical="/workspace/slatwall-releng/src/Slatwall" virtual="/"/>
-<mapping physical="/workspace/slatwall-releng/src/Slatwall" virtual="/Slatwall"/>
+<mapping physical="@src.dir@/Slatwall" virtual="/"/>
+<mapping physical="@src.dir@/Slatwall" virtual="/Slatwall"/>
 <mapping physical="@src.dir@/../tests" virtual="/tests"/>
 <mapping physical="@war.target.dir@/WEB-INF/lib/railo-server" virtual="/WEB-INF/lib/railo-server"/>
 </mappings>
