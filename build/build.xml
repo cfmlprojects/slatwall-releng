@@ -32,18 +32,8 @@
  -->
  			<get src="http://${server.host}:${server.port.http}/?s=1" dest="${temp.dir}/firedUpMuraNowDelMe.html" />
  			<get src="http://${server.host}:${server.port.http}/index.cfm?slatAction=main.login" dest="${temp.dir}/firedUpMuraNowDelMe.html" />
-			<antcontrib:post to="http://${server.host}:${server.port.http}/?s=1" verbose="true" failonerror="true" logfile="/tmp/fart.html" append="false">
-				<prop name="slatAction" value="admin%3Amain.authorizelogin"/>
-				<prop name="emailAddress" value="valliantster%40gmail.com"/>
-				<prop name="password" value="testtest"/>
-	    	</antcontrib:post>
-			<antcontrib:post to="http://${server.host}:${server.port.http}/?slatAction=main.authorizelogin" verbose="true" failonerror="true" logfile="/tmp/fart.html" >
+			<antcontrib:post to="http://${server.host}:${server.port.http}/?slatAction=main.authorizelogin" verbose="true" failonerror="true" logfile="/tmp/fart2.html" >
 				<prop name="emailAddress" value="valliantster@gmail.com"/>
-				<prop name="password" value="testtest"/>
-	    	</antcontrib:post>
-			<antcontrib:post to="http://${server.host}:${server.port.http}/index.cfm?slatAction=main.login" verbose="true" failonerror="true" logfile="/tmp/fart.html">
-				<prop name="slatAction" value="admin%3Amain.authorizelogin"/>
-				<prop name="emailAddress" value="valliantster%40gmail.com"/>
 				<prop name="password" value="testtest"/>
 	    	</antcontrib:post>
  			<antcontrib:runtarget target="mxunit.tests" />
