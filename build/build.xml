@@ -2,7 +2,7 @@
 
 	<loadproperties srcfile="build.properties"/>
 	<property name="mxunit.tests.dir" location="${src.dir}/Slatwall/meta/tests" />
-	<property name="mxunit.runner" value="/Slatwall/HttpAntRunner.cfc" />
+	<property name="mxunit.runner" value="/Slatwall/meta/tests/HttpAntRunner.cfc" />
 	<property name="mxunit.componentpath" value="Slatwall.meta.tests" />
 	<property name="mxunit.tests.results.dir" location="${dist.dir}/testresults" />
 	<property name="mxunit.recurse" value="true" />
