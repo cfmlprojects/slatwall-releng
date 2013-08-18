@@ -9,4 +9,5 @@
 <mapping physical="@src.dir@/Slatwall" virtual="/Slatwall"/>
 <mapping physical="@src.dir@/../tests" virtual="/tests"/>
 <mapping physical="@war.target.dir@/WEB-INF/lib/railo-server" virtual="/WEB-INF/lib/railo-server"/>
+<mapping physical="@ext.mappings.dir@/cfml.cfselenium/cfselenium/2.28.0" virtual="/CFSelenium"/>
 </mappings>

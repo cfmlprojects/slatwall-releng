@@ -1,9 +1,9 @@
 <project name="distro.build" default="build" basedir="./" xmlns:antcontrib="antlib:net.sf.antcontrib">
 
 	<loadproperties srcfile="build.properties"/>
-	<property name="mxunit.tests.dir" location="${src.dir}/Slatwall/meta/tests/unit" />
+	<property name="mxunit.tests.dir" location="${src.dir}/Slatwall/meta/tests" />
 	<property name="mxunit.runner" value="/Slatwall/HttpAntRunner.cfc" />
-	<property name="mxunit.componentpath" value="Slatwall.meta.tests.unit" />
+	<property name="mxunit.componentpath" value="Slatwall.meta.tests" />
 	<property name="mxunit.tests.results.dir" location="${dist.dir}/testresults" />
 	<property name="mxunit.recurse" value="true" />
 	<property name="mxunit.packageName" value="${mxunit.componentpath}" />
@@ -11,11 +11,12 @@
 
 	<target name="build" depends="cfdistro.build, slatwall.initdb">
 		<dependency groupId="org.mxunit" artifactId="core" version="${mxunit.version}" mapping="/mxunit" />
-		<echo file="${src.dir}/Slatwall/HttpAntRunner.cfc"><![CDATA[<cfcomponent extends="mxunit.runner.HttpAntRunner"></cfcomponent>]]></echo>
+		<dependency groupId="cfml.cfselenium" artifactId="cfselenium" version="2.28.0" mapping="/CFSelenium" />
 		<mapping physical="@src.dir@/../tests" virtual="/tests" />
 	</target>
 
 	<target name="build.test" depends="build">
+		<echo file="${src.dir}/Slatwall/meta/tests/HttpAntRunner.cfc"><![CDATA[<cfcomponent extends="mxunit.runner.HttpAntRunner"></cfcomponent>]]></echo>
 		<server-run>
 <!--
  			<get src="http://${server.host}:${server.port.http}/plugins/slatwall/index.cfm" dest="${temp.dir}/firedUpMuraNowDelMe" />
@@ -27,7 +28,16 @@
 				<prop name="emailAddress" value="valliantster@gmail.com"/>
 				<prop name="password" value="testtest"/>
 	    	</antcontrib:post>
- 			<antcontrib:runtarget target="mxunit.tests" />
+			<mxunit-call 
+				path="${mxunit.tests.dir}/unit" componentPath="${mxunit.componentpath}.unit"
+				packageName="${mxunit.componentpath}.unit" recurse="${mxunit.recurse}"
+				outputdir="${mxunit.tests.results.dir}/unit" failonerror="${mxunit.failonerror}"
+			/>
+			<mxunit-call 
+				path="${mxunit.tests.dir}/coverage" componentPath="${mxunit.componentpath}.coverage"
+				packageName="${mxunit.componentpath}.coverage" recurse="${mxunit.recurse}"
+				outputdir="${mxunit.tests.results.dir}/coverage" failonerror="${mxunit.failonerror}"
+			/>
 		</server-run>
 	</target>
 
@@ -57,7 +67,7 @@
 			url="${dsn.slatwall.url}"
 		    userid="${dsn.slatwall.username}"
 		    password="${dsn.slatwall.password}">
-			DROP DATABASE slatwall;
+			DROP DATABASE IF EXISTS slatwall;
 			CREATE DATABASE slatwall;
 			<classpath>
 				<path refid="data.lib.path"/>

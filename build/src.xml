@@ -4,9 +4,6 @@
 		<src dest="@src.dir@/Slatwall" type="git" 
 		uri="https://github.com/ten24/Slatwall.git" 
 		remote="origin" branch="master" user="" password="" />
-		<src dest="@src.dir@/cfselenium" type="git" 
-		uri="https://github.com/bobsilverberg/CFSelenium.git" 
-		user="" password="" />
 	</project>
 	<sources>
 <!--	ColdSpring 2.0
