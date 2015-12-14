@@ -16,8 +16,9 @@
 	</target>
 
 	<target name="build.test" depends="build">
-		<echo file="${src.dir}/Slatwall/meta/tests/HttpAntRunner.cfc"><![CDATA[<cfcomponent extends="mxunit.runner.HttpAntRunner"></cfcomponent>]]></echo>
-	  <antcontrib:inifile dest="${src.dir}/Slatwall/meta/tests/config/den-is.ini">
+	  <get-hostname property="currenthost" />
+	  <echo file="${src.dir}/Slatwall/meta/tests/HttpAntRunner.cfc"><![CDATA[<cfcomponent extends="mxunit.runner.HttpAntRunner"></cfcomponent>]]></echo>
+	  <antcontrib:inifile dest="${src.dir}/Slatwall/meta/tests/config/${currenthost}.ini">
 	     <set section="common" property="login" value="valliantster@gmail.com" />
 	     <set section="common" property="password" value="t3sttest" />
 	     <set section="ui" property="browserUrl" value="http://${server.host}:${runwar.port}/" />
